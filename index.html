@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biblioteca de Certificados | Fernando Rodrigues</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #0b0f19;
+      --bg-surface: #111827;
+      --bg-card: #162032;
+      --bg-card-hover: #1e293b;
+      --border-color: #243247;
+      --border-focus: #3b82f6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --accent: #10b981;
+      --accent-badge: rgba(16, 185, 129, 0.15);
+      --accent-text: #34d399;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    [data-theme="light"] {
+      --bg-base: #f1f5f9;
+      --bg-surface: #ffffff;
+      --bg-card: #f8fafc;
+      --bg-card-hover: #e2e8f0;
+      --border-color: #cbd5e1;
+      --border-focus: #2563eb;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-dim: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --accent: #059669;
+      --accent-badge: rgba(5, 150, 105, 0.12);
+      --accent-text: #059669;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOPO / HEADER */
+    header.app-header {
+      height: 64px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      gap: 16px;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 250px;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 16px;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+    }
+
+    .brand-text h1 {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .brand-text p {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* BARRA DE PASTAS E FILTROS */
+    .folder-nav-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      max-width: 600px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .folder-nav-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .folder-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .folder-chip:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-main);
+      border-color: var(--border-focus);
+    }
+
+    .folder-chip.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+    }
+
+    .folder-count {
+      font-size: 11px;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 1px 6px;
+      border-radius: 10px;
+    }
+
+    .folder-chip.active .folder-count {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* AÇÕES DO TOPO */
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .theme-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 16px;
+    }
+
+    .theme-btn:hover {
+      color: var(--text-main);
+      border-color: var(--border-focus);
+    }
+
+    /* CONTAINER PRINCIPAL: DIVIDIDO EM 2 COLUNAS */
+    .main-workspace {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 64px);
+      overflow: hidden;
+    }
+
+    /* COLUNA DA ESQUERDA: LISTA DE ARQUIVOS */
+    .sidebar-files {
+      width: 380px;
+      min-width: 300px;
+      max-width: 480px;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      height: 100%;
+    }
+
+    /* CABEÇALHO DA SIDEBAR COM BUSCA */
+    .sidebar-header {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: var(--bg-surface);
+    }
+
+    .sidebar-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-title-row h2 {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .files-badge {
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-text);
+      background: var(--accent-badge);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0 10px;
+      transition: var(--transition);
+    }
+
+    .search-box:focus-within {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+
+    .search-box svg {
+      color: var(--text-dim);
+      flex-shrink: 0;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 8px 10px;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-main);
+      font-size: 13px;
+      font-family: inherit;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .clear-search-btn {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 16px;
+      cursor: pointer;
+      display: none;
+      padding: 0 4px;
+    }
+
+    .clear-search-btn:hover {
+      color: var(--text-main);
+    }
+
+    /* LISTA DE NOMES DE ARQUIVOS */
+    .files-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    /* ITEM DA LISTA: EXIBE APENAS O NOME DO ARQUIVO */
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: left;
+      user-select: none;
+    }
+
+    .file-item:hover {
+      background: var(--bg-card);
+      border-color: var(--border-color);
+    }
+
+    .file-item.active {
+      background: rgba(59, 130, 246, 0.12);
+      border-color: var(--primary);
+    }
+
+    .file-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .file-item.active .file-icon {
+      background: var(--primary);
+      color: white;
+    }
+
+    .file-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-main);
+      line-height: 1.35;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      word-break: break-word;
+    }
+
+    .file-item.active .file-name {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    /* EMPTY STATE NA LISTA */
+    .empty-list {
+      padding: 40px 16px;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 13px;
+    }
+
+    .empty-list svg {
+      margin-bottom: 8px;
+      opacity: 0.5;
+    }
+
+    /* COLUNA DA DIREITA: ÁREA DE VISUALIZAÇÃO DO PDF */
+    .preview-stage {
+      flex: 1;
+      height: 100%;
+      background: var(--bg-base);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* BARRA SUPERIOR DO VISUALIZADOR */
+    .preview-toolbar {
+      height: 52px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .current-file-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .current-file-badge {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    .current-file-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .preview-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 6px 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+    }
+
+    .nav-btn:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-main);
+      border-color: var(--border-focus);
+    }
+
+    .primary-action-btn {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .primary-action-btn:hover {
+      background: var(--primary-hover);
+      color: white;
+    }
+
+    /* CONTAINER DO IFRAME DO PDF */
+    .preview-container {
+      flex: 1;
+      height: calc(100% - 52px);
+      width: 100%;
+      background: #1e293b;
+      position: relative;
+    }
+
+    .pdf-viewer-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      background: #1e293b;
+    }
+
+    /* ESTADO INICIAL / SEM ARQUIVO SELECIONADO */
+    .no-file-selected {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-dim);
+      text-align: center;
+      padding: 24px;
+      gap: 12px;
+    }
+
+    .no-file-selected svg {
+      opacity: 0.4;
+    }
+
+    .no-file-selected h3 {
+      font-size: 16px;
+      color: var(--text-main);
+    }
+
+    .no-file-selected p {
+      font-size: 13px;
+      max-width: 360px;
+    }
+
+    /* RESPONSIVIDADE PARA TELAS MENORES */
+    @media (max-width: 860px) {
+      .main-workspace {
+        flex-direction: column;
+      }
+      .sidebar-files {
+        width: 100%;
+        max-width: none;
+        height: 40vh;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .preview-stage {
+        height: 60vh;
+      }
+    }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <!-- CABEÇALHO SUPERIOR -->
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="brand-icon">FR</div>
+      <div class="brand-text">
+        <h1>Fernando Rodrigues</h1>
+        <p>Biblioteca de Certificados</p>
+      </div>
+    </div>
+
+    <!-- NAVEGAÇÃO DE PASTAS -->
+    <nav class="folder-nav-bar" id="folderNavBar">
+      <button class="folder-chip active" data-folder="2026">
+        📁 2026
+        <span class="folder-count" id="count2026">19</span>
+      </button>
+      <button class="folder-chip" data-folder="2025">
+        📁 2025
+        <span class="folder-count" id="count2025">14</span>
+      </button>
+      <button class="folder-chip" data-folder="todos">
+        📁 Todas as Pastas
+        <span class="folder-count" id="countTodos">33</span>
+      </button>
+    </nav>
+
+    <!-- AÇÕES -->
+    <div class="top-actions">
+      <button class="theme-btn" id="themeToggleBtn" title="Alternar Modo Claro / Escuro">
+        <span id="themeIcon">☀️</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- WORKSPACE DIVIDIDO: LISTA À ESQUERDA + VISUALIZAÇÃO À DIREITA -->
+  <main class="main-workspace">
+    <!-- COLUNA 1: APENAS O NOME DO ARQUIVO -->
+    <aside class="sidebar-files">
+      <div class="sidebar-header">
+        <div class="sidebar-title-row">
+          <h2 id="currentFolderTitle">📁 Pasta: 2026</h2>
+          <span class="files-badge" id="visibleFilesBadge">19 PDFs</span>
+        </div>
+
+        <div class="search-box">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input 
+            type="text" 
+            id="searchInput" 
+            class="search-input" 
+            placeholder="Filtrar por nome do arquivo..."
+            autocomplete="off"
+          >
+          <button id="clearSearchBtn" class="clear-search-btn" title="Limpar filtro">&times;</button>
+        </div>
+      </div>
+
+      <!-- LISTA DE ARQUIVOS (EXIBINDO SOMENTE O NOME DO ARQUIVO) -->
+      <div class="files-list" id="filesListContainer">
+        <!-- Itens inseridos via JavaScript -->
+      </div>
+    </aside>
+
+    <!-- COLUNA 2: VISUALIZAÇÃO DO ARQUIVO PDF -->
+    <section class="preview-stage">
+      <!-- BARRA DE FERRAMENTAS DO VISUALIZADOR -->
+      <div class="preview-toolbar" id="previewToolbar">
+        <div class="current-file-info">
+          <span class="current-file-badge" id="previewFolderBadge">2026</span>
+          <span class="current-file-title" id="previewFileName">Selecione um arquivo para visualizar</span>
+        </div>
+
+        <div class="preview-actions">
+          <button class="nav-btn" id="prevBtn" title="Arquivo Anterior (Seta Cima / Esquerda)">
+            ← Anterior
+          </button>
+          <button class="nav-btn" id="nextBtn" title="Próximo Arquivo (Seta Baixo / Direita)">
+            Próximo →
+          </button>
+          <a class="nav-btn primary-action-btn" id="openExternalBtn" href="#" target="_blank" title="Abrir em nova aba do navegador">
+            ↗ Nova Aba
+          </a>
+        </div>
+      </div>
+
+      <!-- VISUALIZADOR EMBUTIDO -->
+      <div class="preview-container" id="previewContainer">
+        <iframe id="pdfViewer" class="pdf-viewer-frame" src="" title="Visualizador de PDF"></iframe>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // BASE DE DADOS DOS 33 ARQUIVOS PDF POR PASTA
+    const LOCAL_CERTIFICATES = [
+      // PASTA 2026 (19 arquivos)
+      { name: "Angular 19 - Curso Completo do Iniciante ao Avançado (2026).pdf", folder: "2026" },
+      { name: "The EU AI Act Explained - Compliance and Practical Impact.pdf", folder: "2026" },
+      { name: "Entendendo e documentando REST - RESTful APIs.pdf", folder: "2026" },
+      { name: "Visual Studio Code - Produtividade Absoluta.pdf", folder: "2026" },
+      { name: "Explorando o DeepSeek - Domine a Revolucionária IA Gratuita.pdf", folder: "2026" },
+      { name: "Curso Angular 17 - CRUD Completo com Firebase.pdf", folder: "2026" },
+      { name: "Técnicas Hacker em Redes Wi-Fi (completo).pdf", folder: "2026" },
+      { name: "angular_basic certificate.pdf", folder: "2026" },
+      { name: "sql_intermediate certificate.pdf", folder: "2026" },
+      { name: "python_basic certificate.pdf", folder: "2026" },
+      { name: "sql_basic certificate.pdf", folder: "2026" },
+      { name: "java_basic certificate.pdf", folder: "2026" },
+      { name: "Vibe Coding do Zero ao Pro - Programe com IA e LLMs.pdf", folder: "2026" },
+      { name: "Aprenda JAVA em 7 Dias com Projetos Reais.pdf", folder: "2026" },
+      { name: "IA Generativa para Profissionais de Finanças e Contabilidade.pdf", folder: "2026" },
+      { name: "Perplexity AI para Profissionais - Pesquisa e Decisões com IA.pdf", folder: "2026" },
+      { name: "Detox Profundo - Segundo a Medicina Tradicional Chinesa!.pdf", folder: "2026" },
+      { name: "Curso Básico de Investimentos.pdf", folder: "2026" },
+      { name: "Hiper-Memória & Hiper-Aprendizagem.pdf", folder: "2026" },
+
+      // PASTA 2025 (14 arquivos)
+      { name: "Comunicação não violenta - Aprenda a se comunicar melhor!.pdf", folder: "2025" },
+      { name: "Guía rápida de lombok en español.pdf", folder: "2025" },
+      { name: "Gestão de Conflitos.pdf", folder: "2025" },
+      { name: "Domine Histórias de Usuário no Scrum + Bônus [2025].pdf", folder: "2025" },
+      { name: "MongoDB fundamental - Aprenda o básico de NoSQL.pdf", folder: "2025" },
+      { name: "Educação Financeira para não Financeiros.pdf", folder: "2025" },
+      { name: "Como Superar Bloqueios Emocionais que Impedem a Prosperidade.pdf", folder: "2025" },
+      { name: "Microsoft Teams.pdf", folder: "2025" },
+      { name: "ChatGPT p-iniciantes! ENTENDA como criar prompts ChatGPT.pdf", folder: "2025" },
+      { name: "TypeScript fundamental - Aprenda a utilizar o superset de JS.pdf", folder: "2025" },
+      { name: "Aprenda Postman em 1 Hora - Iniciante.pdf", folder: "2025" },
+      { name: "Git e GitHub em 1 Hora.pdf", folder: "2025" },
+      { name: "Meu Cliente me Odeia! - Resolução de Conflitos.pdf", folder: "2025" },
+      { name: "Arquitetura Hexagonal na prática.pdf", folder: "2025" }
+    ];
+
+    // ESTADO DA APLICAÇÃO
+    let activeFolder = '2026';
+    let currentSearchTerm = '';
+    let currentFileList = [];
+    let selectedFileIndex = 0;
+
+    // ELEMENTOS DOM
+    const folderNavBar = document.getElementById('folderNavBar');
+    const filesListContainer = document.getElementById('filesListContainer');
+    const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const currentFolderTitle = document.getElementById('currentFolderTitle');
+    const visibleFilesBadge = document.getElementById('visibleFilesBadge');
+    const previewFileName = document.getElementById('previewFileName');
+    const previewFolderBadge = document.getElementById('previewFolderBadge');
+    const pdfViewer = document.getElementById('pdfViewer');
+    const openExternalBtn = document.getElementById('openExternalBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const themeIcon = document.getElementById('themeIcon');
+
+    // INICIALIZAÇÃO
+    function init() {
+      setupEventListeners();
+      renderFolderFiles();
+    }
+
+    // CONFIGURAR EVENTOS
+    function setupEventListeners() {
+      // Troca de pasta através das abas
+      folderNavBar.addEventListener('click', (e) => {
+        const chip = e.target.closest('.folder-chip');
+        if (!chip) return;
+
+        document.querySelectorAll('.folder-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+
+        activeFolder = chip.dataset.folder;
+        selectedFileIndex = 0;
+        renderFolderFiles();
+      });
+
+      // Filtro de busca por nome de arquivo
+      searchInput.addEventListener('input', (e) => {
+        currentSearchTerm = e.target.value.toLowerCase().trim();
+        clearSearchBtn.style.display = currentSearchTerm ? 'block' : 'none';
+        selectedFileIndex = 0;
+        renderFolderFiles();
+      });
+
+      clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        currentSearchTerm = '';
+        clearSearchBtn.style.display = 'none';
+        searchInput.focus();
+        selectedFileIndex = 0;
+        renderFolderFiles();
+      });
+
+      // Navegação por botões Anterior / Próximo
+      prevBtn.addEventListener('click', () => navigateFile(-1));
+      nextBtn.addEventListener('click', () => navigateFile(1));
+
+      // Navegação por teclado
+      window.addEventListener('keydown', (e) => {
+        if (document.activeElement === searchInput) return;
+        if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          navigateFile(-1);
+        } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+          e.preventDefault();
+          navigateFile(1);
+        }
+      });
+
+      // Alternar Tema Claro / Escuro
+      themeToggleBtn.addEventListener('click', toggleTheme);
+    }
+
+    // RETORNA A LISTA DE ARQUIVOS CONFORME A PASTA ATIVA
+    function getFilesForActiveFolder() {
+      let files = [];
+
+      if (activeFolder === 'todos') {
+        files = [...LOCAL_CERTIFICATES];
+      } else {
+        files = LOCAL_CERTIFICATES.filter(f => f.folder === activeFolder);
+      }
+
+      if (currentSearchTerm) {
+        files = files.filter(f => f.name.toLowerCase().includes(currentSearchTerm));
+      }
+
+      return files;
+    }
+
+    // RENDERIZAR ARQUIVOS NA LISTA LATERAL
+    function renderFolderFiles() {
+      currentFileList = getFilesForActiveFolder();
+
+      // Atualiza títulos do cabeçalho da barra lateral
+      if (activeFolder === 'todos') {
+        currentFolderTitle.textContent = `📁 Todas as Pastas`;
+      } else {
+        currentFolderTitle.textContent = `📁 Pasta: ${activeFolder}`;
+      }
+
+      visibleFilesBadge.textContent = `${currentFileList.length} PDF${currentFileList.length === 1 ? '' : 's'}`;
+
+      if (currentFileList.length === 0) {
+        filesListContainer.innerHTML = `
+          <div class="empty-list">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <p>Nenhum arquivo encontrado com este nome.</p>
+          </div>
+        `;
+        showNoFileState();
+        return;
+      }
+
+      // Se o índice atual estiver fora dos limites, reseta para 0
+      if (selectedFileIndex < 0 || selectedFileIndex >= currentFileList.length) {
+        selectedFileIndex = 0;
+      }
+
+      // Renderiza apenas os nomes dos arquivos
+      filesListContainer.innerHTML = currentFileList.map((file, idx) => {
+        const isActive = idx === selectedFileIndex ? 'active' : '';
+        return `
+          <button 
+            class="file-item ${isActive}" 
+            onclick="selectFile(${idx})"
+            title="${file.name}"
+          >
+            <div class="file-icon">PDF</div>
+            <div class="file-name">${file.name}</div>
+          </button>
+        `;
+      }).join('');
+
+      // Carrega a visualização do arquivo selecionado
+      loadPreview(currentFileList[selectedFileIndex]);
+    }
+
+    // SELECIONAR ARQUIVO
+    function selectFile(index) {
+      if (index < 0 || index >= currentFileList.length) return;
+      selectedFileIndex = index;
+
+      // Atualiza classes ativas nos botões
+      const items = filesListContainer.querySelectorAll('.file-item');
+      items.forEach((item, idx) => {
+        item.classList.toggle('active', idx === selectedFileIndex);
+      });
+
+      loadPreview(currentFileList[selectedFileIndex]);
+    }
+
+    // CARREGAR PRÉ-VISUALIZAÇÃO DO PDF
+    function loadPreview(file) {
+      if (!file) {
+        showNoFileState();
+        return;
+      }
+
+      // Atualiza informações no topo da tela de visualização
+      previewFileName.textContent = file.name;
+      previewFileName.title = file.name;
+      previewFolderBadge.textContent = `Pasta: ${file.folder}`;
+
+      // Monta o caminho relativo para o PDF
+      const fileUrl = encodeURI(`${file.folder}/${file.name}`);
+
+      // Atualiza o iframe para pré-visualização direta
+      pdfViewer.src = fileUrl;
+
+      // Configura o botão de abrir em nova aba
+      openExternalBtn.href = fileUrl;
+
+      // Atualiza estados dos botões de navegação
+      prevBtn.disabled = selectedFileIndex <= 0;
+      nextBtn.disabled = selectedFileIndex >= currentFileList.length - 1;
+      prevBtn.style.opacity = prevBtn.disabled ? '0.4' : '1';
+      nextBtn.style.opacity = nextBtn.disabled ? '0.4' : '1';
+    }
+
+    // NAVEGAR ENTRE ARQUIVOS (ANTERIOR / PRÓXIMO)
+    function navigateFile(direction) {
+      const newIndex = selectedFileIndex + direction;
+      if (newIndex >= 0 && newIndex < currentFileList.length) {
+        selectFile(newIndex);
+        // Garante que o item fique visível no scroll da lista
+        const items = filesListContainer.querySelectorAll('.file-item');
+        if (items[newIndex]) {
+          items[newIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+      }
+    }
+
+    function showNoFileState() {
+      previewFileName.textContent = 'Nenhum arquivo selecionado';
+      previewFolderBadge.textContent = '-';
+      pdfViewer.src = 'about:blank';
+      openExternalBtn.removeAttribute('href');
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+    }
+
+    // ALTERNAR TEMA CLARO / ESCURO
+    function toggleTheme() {
+      const currentTheme = document.body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.body.setAttribute('data-theme', newTheme);
+      themeIcon.textContent = newTheme === 'light' ? '🌙' : '☀️';
+    }
+
+    // INICIAR
+    init();
+  </script>
+</body>
+</html>
